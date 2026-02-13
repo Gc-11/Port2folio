@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portfolio</title>
+  <link rel="stylesheet" href="mystyle.css">
+
+  <!-- EmailJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">MyPortfolio</div>
+    <nav>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ABOUT -->
+  <section id="about" class="about">
+    <img src="i5.jpg" alt="Profile Picture">
+    <div class="about-text">
+      <h2>About Me</h2>
+      <p>
+        I am a computer engineering student interested in web development and
+        full stack technologies. I enjoy building responsive and user-friendly
+        websites.
+      </p>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="projects">
+    <h2>Projects</h2>
+    <div class="project-grid">
+
+      <div class="card">
+        <img src="image.png" alt="Project 1">
+        <h3>Project One</h3>
+        <p>Static website using HTML and CSS.</p>
+        <a href="project.html">View Project</a>
+      </div>
+
+      <div class="card">
+        <img src="p.png" alt="Project 2">
+        <h3>Project Two</h3>
+        <p>Responsive portfolio website.</p>
+        <a href="https://gabrielportfolio-ashy.vercel.app/">View Project</a>
+      </div>
+
+      <div class="card">
+        <img src="b.png" alt="Project 3">
+        <h3>Project Three</h3>
+        <p>Blue circuit</p>
+        <a href="#">View Project</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT SECTION -->
+  <section id="contact" class="contact">
+    <h2>Contact Manager</h2>
+
+    <div class="contact-container">
+
+      <!-- EMAIL FORM -->
+      <form id="contactForm">
+        <input type="text" id="name" placeholder="Enter Name" required>
+        <input type="email" id="email" placeholder="Enter Email" required>
+        <input type="number" id="phone" placeholder="Enter Phone Number" required>
+        <textarea id="message" placeholder="Enter Message" required></textarea>
+
+        <button type="submit">Send Message</button>
+      </form>
+
+      <input type="text" id="search" placeholder="Search contacts..." class="search-bar">
+
+      <ul id="contactList"></ul>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>GABRIEL Portfolio</p>
+  </footer>
+
+  <!-- ALL SCRIPT AT BOTTOM -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    /* ===============================
+       EMAILJS CONFIGURATION
+    ================================ */
+    emailjs.init("QDISLyUzS9wjPOJ3w");
+
+    const contactForm = document.getElementById("contactForm");
+
+    contactForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const templateParams = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        message: document.getElementById("message").value,
+      };
+
+      emailjs.send("service_zm9on1w", "template_hg5j8jv", templateParams)
+        .then(() => {
+          alert("Message sent successfully!");
+          contactForm.reset();
+        })
+        .catch((error) => {
+          alert("Failed to send message.");
+          console.error(error);
+        });
+    });
+
+
+    /* ===============================
+       CONTACT MANAGER (LocalStorage)
+    ================================ */
+
+    let contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+    const contactList = document.getElementById("contactList");
+    const searchInput = document.getElementById("search");
+
+    function saveToLocalStorage() {
+      localStorage.setItem("contacts", JSON.stringify(contacts));
+    }
+
+    function renderContacts(filteredContacts = contacts) {
+      contactList.innerHTML = "";
+
+      filteredContacts.forEach((contact, index) => {
+        const li = document.createElement("li");
+        li.className = "contact-item";
+
+        li.innerHTML = `
+          <div>
+            <strong>${contact.name}</strong><br>
+            ${contact.email}<br>
+            ${contact.phone}
+          </div>
+          <div class="contact-actions">
+            <button class="delete-btn" data-index="${index}">Delete</button>
+          </div>
+        `;
+
+        contactList.appendChild(li);
+      });
+    }
+
+    contactList.addEventListener("click", function (e) {
+      if (e.target.classList.contains("delete-btn")) {
+        const index = e.target.dataset.index;
+        contacts.splice(index, 1);
+        saveToLocalStorage();
+        renderContacts();
+      }
+    });
+
+    searchInput.addEventListener("input", () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filtered = contacts.filter(contact =>
+        contact.name.toLowerCase().includes(searchTerm) ||
+        contact.email.toLowerCase().includes(searchTerm)
+      );
+      renderContacts(filtered);
+    });
+
+    renderContacts();
+
+  });
+  </script>
+
+</body>
+</html>
